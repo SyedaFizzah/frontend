@@ -629,19 +629,8 @@ function SettingsSection() {
           </div>
         </div>
 
-        <hr className="settings-divider" />
-
-        <div className="form-group">
-          <label>Active monitoring zones</label>
-          <div className="zones-list">
-            <label className="checkbox-label"><input type="checkbox" defaultChecked /> Zone A — Entrance</label>
-            <label className="checkbox-label"><input type="checkbox" defaultChecked /> Zone B — Welding</label>
-            <label className="checkbox-label"><input type="checkbox" /> Zone C — Storage</label>
-            <label className="checkbox-label"><input type="checkbox" /> Zone D — Loading dock</label>
-          </div>
-        </div>
-
         <button className="btn btn-primary" style={{ marginTop: 28 }} onClick={() => alert("Configuration saved")}>
+
           <Icon><path d="M20 6L9 17l-5-5" /></Icon>
           Save configuration
         </button>
