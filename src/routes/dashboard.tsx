@@ -313,7 +313,35 @@ function HubSection() {
       </div>
 
       <div className="hub-grid">
+        <div className="feed-container">
+          <div className="card-header">
+            <div className="card-header-title">
+              <Icon><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></Icon>
+              <h3>Live Camera Feed</h3>
+            </div>
+            <div className="feed-meta">
+              <span><span className="live-dot" />Streaming</span>
+              <span>1080p · 30 FPS</span>
+            </div>
+          </div>
+          <div className="camera-display">
+            <div className="camera-frame">
+              <div className="camera-overlay-ui">
+                <div className="cam-label">LIVE</div>
+                <div className="cam-timestamp">{new Date().toLocaleTimeString()}</div>
+              </div>
+              <div className="detection-box green" style={{ top: "22%", left: "18%", width: "22%", height: "55%" }}>
+                <span className="det-label">Track #36 · Compliant</span>
+              </div>
+              <div className="detection-box red" style={{ top: "30%", left: "55%", width: "20%", height: "50%" }}>
+                <span className="det-label">Track #25 · No Helmet</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="sidebar-panels">
+
 
           <div className="report-panel">
             <div className="card-header">
