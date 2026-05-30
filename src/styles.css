@@ -248,12 +248,13 @@ a:hover { color: var(--primary-hover); }
 }
 
 .auth-sidebar {
-  flex: 0 0 480px;
-  padding: 56px 72px;
+  flex: 0 0 440px;
+  padding: 56px 64px;
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);
   overflow-y: auto;
+  order: 2;
 }
 
 .auth-hero {
@@ -261,6 +262,8 @@ a:hover { color: var(--primary-hover); }
   position: relative;
   background-color: var(--primary);
   overflow: hidden;
+  order: 1;
+  min-height: 100vh;
 }
 
 .hero-img {
@@ -272,7 +275,7 @@ a:hover { color: var(--primary-hover); }
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(29, 78, 216, 0.92) 0%, rgba(14, 165, 233, 0.78) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.88) 0%, rgba(125, 211, 252, 0.78) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
