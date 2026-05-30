@@ -35,8 +35,8 @@ function LoginPage() {
     }, 800);
   };
 
-  const demoLogin = () => {
-    setUser({ name: "Demo User", email: "demo@safeguard.ai", role: "Site Supervisor", loggedIn: true });
+  const googleLogin = () => {
+    setUser({ name: "Google User", email: "user@gmail.com", role: "Site Supervisor", loggedIn: true });
     navigate({ to: "/dashboard" });
   };
 
@@ -51,10 +51,11 @@ function LoginPage() {
       heroTitle="Workplace safety, powered by intelligence."
       heroText="Real-time computer vision detects PPE compliance violations, generates audit trails, and delivers AI-driven safety insights for industrial environments."
       stats={[
-        { value: "99.2%", label: "Detection accuracy" },
-        { value: "< 50ms", label: "Inference latency" },
+        { value: "24/7", label: "Continuous monitoring" },
+        { value: "AI-Powered", label: "Smart safety insights" },
       ]}
     >
+
       <div className="auth-header">
         <h1>Welcome back</h1>
         <p>Sign in to access the PPE monitoring dashboard.</p>
@@ -121,17 +122,20 @@ function LoginPage() {
         <span>Or continue with</span>
       </div>
 
-      <button type="button" className="btn btn-outline btn-block" onClick={demoLogin}>
-        <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M9 12l2 2 4-4" />
+      <button type="button" className="btn btn-outline btn-block" onClick={googleLogin}>
+        <svg className="icon icon-sm" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#4285F4" d="M21.6 12.227c0-.708-.063-1.39-.182-2.045H12v3.868h5.382a4.6 4.6 0 0 1-1.995 3.018v2.51h3.227c1.886-1.737 2.986-4.296 2.986-7.351z"/>
+          <path fill="#34A853" d="M12 22c2.7 0 4.964-.895 6.618-2.422l-3.227-2.51c-.895.6-2.04.955-3.391.955-2.605 0-4.81-1.76-5.596-4.123H3.064v2.59A9.997 9.997 0 0 0 12 22z"/>
+          <path fill="#FBBC05" d="M6.404 13.9A6.004 6.004 0 0 1 6.09 12c0-.659.114-1.3.314-1.9V7.51H3.064A9.997 9.997 0 0 0 2 12c0 1.614.386 3.14 1.064 4.49l3.34-2.59z"/>
+          <path fill="#EA4335" d="M12 5.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C16.96 2.99 14.695 2 12 2A9.997 9.997 0 0 0 3.064 7.51l3.34 2.59C7.19 7.736 9.395 5.977 12 5.977z"/>
         </svg>
-        Continue with SSO
+        Continue with Google
       </button>
 
       <p className="auth-footer">
-        New to SafeGuard? <Link to="/signup" className="auth-link">Request access</Link>
+        New to SafeGuard? <Link to="/signup" className="auth-link">Sign up</Link>
       </p>
+
     </AuthLayout>
   );
 }

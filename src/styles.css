@@ -6,28 +6,28 @@
    ============================================================ */
 
 :root {
-  /* Brand */
-  --primary: #1D4ED8;
-  --primary-hover: #1E40AF;
-  --primary-soft: #EFF4FF;
-  --primary-soft-2: #DBE7FF;
-  --accent: #0EA5E9;
+  /* Brand — soft light blue */
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --primary-soft: #EFF6FF;
+  --primary-soft-2: #DBEAFE;
+  --accent: #7DD3FC;
 
   /* Surfaces */
-  --bg-app: #F7F9FC;
+  --bg-app: #F0F7FF;
   --bg-surface: #FFFFFF;
-  --bg-subtle: #F1F5F9;
-  --bg-hover: #F8FAFC;
+  --bg-subtle: #E0F2FE;
+  --bg-hover: #F0F9FF;
 
   /* Text */
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
+  --text-primary: #0C2A4D;
+  --text-secondary: #334E6C;
   --text-muted: #64748B;
   --text-light: #94A3B8;
 
   /* Borders */
-  --border: #E2E8F0;
-  --border-strong: #CBD5E1;
+  --border: #DBEAFE;
+  --border-strong: #BFDBFE;
   --border-focus: #93C5FD;
 
   /* Status */
@@ -248,12 +248,13 @@ a:hover { color: var(--primary-hover); }
 }
 
 .auth-sidebar {
-  flex: 0 0 480px;
-  padding: 56px 72px;
+  flex: 0 0 440px;
+  padding: 56px 64px;
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);
   overflow-y: auto;
+  order: 2;
 }
 
 .auth-hero {
@@ -261,6 +262,8 @@ a:hover { color: var(--primary-hover); }
   position: relative;
   background-color: var(--primary);
   overflow: hidden;
+  order: 1;
+  min-height: 100vh;
 }
 
 .hero-img {
@@ -272,7 +275,7 @@ a:hover { color: var(--primary-hover); }
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(29, 78, 216, 0.92) 0%, rgba(14, 165, 233, 0.78) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.88) 0%, rgba(125, 211, 252, 0.78) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -421,7 +424,7 @@ a:hover { color: var(--primary-hover); }
 .form-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 select.form-input {
@@ -760,7 +763,7 @@ select.form-input {
 .header-search:focus-within {
   background: var(--bg-surface);
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .header-search .icon {
@@ -1101,7 +1104,7 @@ select.form-input {
   height: 100%;
   position: relative;
   background:
-    radial-gradient(circle at 30% 40%, rgba(29, 78, 216, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 70% 60%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
     #0F172A;
   overflow: hidden;
@@ -1413,7 +1416,7 @@ select.form-input {
 .filter-group select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .date-range {
@@ -1874,12 +1877,12 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--primary);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.15);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
   transition: box-shadow var(--timing);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.2);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2);
 }
 
 .settings-divider {

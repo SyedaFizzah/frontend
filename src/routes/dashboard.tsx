@@ -265,29 +265,12 @@ function NotifItem({ unread, variant, title, body, time }: { unread?: boolean; v
 
 /* ============ HUB ============ */
 function HubSection() {
-  const [time, setTime] = useState("");
-  const [frame, setFrame] = useState(1281);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [paused, setPaused] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const keyRef = useRef(0);
 
-  useEffect(() => {
-    const fmt = () => {
-      const n = new Date();
-      const pad = (x: number) => String(x).padStart(2, "0");
-      setTime(`${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())} ${n.toTimeString().split(" ")[0]}`);
-    };
-    fmt();
-    const t = setInterval(fmt, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setFrame((f) => f + Math.floor(Math.random() * 3) + 1), 800);
-    return () => clearInterval(t);
-  }, []);
 
   useEffect(() => {
     const seed: LogEntry[] = [];
@@ -330,40 +313,8 @@ function HubSection() {
       </div>
 
       <div className="hub-grid">
-        <div className="feed-container">
-          <div className="card-header">
-            <div className="card-header-title">
-              <Icon><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></Icon>
-              <h3>CAM 01 — Zone A Entrance</h3>
-            </div>
-            <div className="feed-meta">
-              <span>FPS 24</span>
-              <span>Frame <strong>{frame.toLocaleString()}</strong></span>
-            </div>
-          </div>
-          <div className="camera-display">
-            <div className="camera-overlay-ui">
-              <span className="cam-label">PRIMARY FEED</span>
-              <span className="cam-timestamp">{time}</span>
-            </div>
-            <div className="camera-frame">
-              <div className="detection-box green" style={{ top: "22%", left: "14%", width: "22%", height: "58%" }}>
-                <span className="det-label">Person 01 · Compliant</span>
-              </div>
-              <div className="detection-box red" style={{ top: "18%", left: "56%", width: "24%", height: "62%" }}>
-                <span className="det-label">Person 02 · No Helmet</span>
-              </div>
-              <div className="cam-scoreboard">
-                <div className="sb-title">Active Violations</div>
-                <div className="sb-row"><span>Track #02 — No Helmet</span> <span className="sb-count">1</span></div>
-                <div className="sb-row"><span>Track #05 — No Gloves</span> <span className="sb-count">2</span></div>
-                <div className="sb-row"><span>Track #07 — No Vest</span> <span className="sb-count">1</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="sidebar-panels">
+
           <div className="report-panel">
             <div className="card-header">
               <div className="card-header-title">
@@ -678,19 +629,8 @@ function SettingsSection() {
           </div>
         </div>
 
-        <hr className="settings-divider" />
-
-        <div className="form-group">
-          <label>Active monitoring zones</label>
-          <div className="zones-list">
-            <label className="checkbox-label"><input type="checkbox" defaultChecked /> Zone A — Entrance</label>
-            <label className="checkbox-label"><input type="checkbox" defaultChecked /> Zone B — Welding</label>
-            <label className="checkbox-label"><input type="checkbox" /> Zone C — Storage</label>
-            <label className="checkbox-label"><input type="checkbox" /> Zone D — Loading dock</label>
-          </div>
-        </div>
-
         <button className="btn btn-primary" style={{ marginTop: 28 }} onClick={() => alert("Configuration saved")}>
+
           <Icon><path d="M20 6L9 17l-5-5" /></Icon>
           Save configuration
         </button>
