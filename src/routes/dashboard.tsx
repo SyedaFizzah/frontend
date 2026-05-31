@@ -50,16 +50,23 @@ const complianceData  = [88.2, 85.6, 91.3, 87.5, 90.1, 88.7, 87.5];
 const complianceDays  = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const dailyViolations = [3, 5, 2, 7, 4, 1, 2];
 const violationTypes  = [
-  { label: "No Helmet",  count: 14, color: "#DC2626" },
-  { label: "No Goggles", count:  6, color: "#D97706" },
-  { label: "No Gloves",  count:  4, color: "#9FA1FF" },
-  { label: "No Boots",   count:  3, color: "#AEE2FF" },
-  { label: "No Vest",    count:  2, color: "#059669" },
+  { label: "No Helmet",  count: 14, color: "#1D4ED8" },
+  { label: "No Goggles", count:  6, color: "#2563EB" },
+  { label: "No Gloves",  count:  4, color: "#60A5FA" },
+  { label: "No Boots",   count:  3, color: "#93C5FD" },
+  { label: "No Vest",    count:  2, color: "#BFDBFE" },
 ];
-const zoneData = [
-  { zone: "Zone A", compliance: 82, violations: 16 },
-  { zone: "Zone B", compliance: 93, violations:  8 },
-  { zone: "Zone C", compliance: 78, violations: 22 },
+const hourlyData = [
+  { hour: "8 AM",  count: 2 },
+  { hour: "9 AM",  count: 5 },
+  { hour: "10 AM", count: 8 },
+  { hour: "11 AM", count: 4 },
+  { hour: "12 PM", count: 3 },
+  { hour: "1 PM",  count: 6 },
+  { hour: "2 PM",  count: 3 },
+  { hour: "3 PM",  count: 9 },
+  { hour: "4 PM",  count: 5 },
+  { hour: "5 PM",  count: 2 },
 ];
 
 const formatViol = (v: string) => v.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
@@ -356,8 +363,8 @@ function ActivityItem({ event }: { event: ActivityEvent }) {
     critical: { dot: "#DC2626", label: "Violation",  bg: "#FEF2F2" },
     high:     { dot: "#D97706", label: "Alert",      bg: "#FFFBEB" },
     medium:   { dot: "#F59E0B", label: "Warning",    bg: "#FFFBEB" },
-    ok:       { dot: "#059669", label: "Compliant",  bg: "#ECFDF5" },
-    info:     { dot: "#9FA1FF", label: "Info",       bg: "#EEEEFF" },
+    ok:       { dot: "#2563EB", label: "Compliant",  bg: "#EFF6FF" },
+    info:     { dot: "#0EA5E9", label: "Info",       bg: "#E0F2FE" },
   };
   const c = cfg[event.severity];
   return (
@@ -406,7 +413,7 @@ function AnalyticsSection() {
             </div>
             <span className="chart-badge" style={{ background:"var(--success-soft)", color:"var(--success)" }}>87.5% avg</span>
           </div>
-          <LineChart data={complianceData} labels={complianceDays} color="#9FA1FF" min={78} max={96} unit="%" />
+          <LineChart data={complianceData} labels={complianceDays} color="#2563EB" min={78} max={96} unit="%" />
           <div className="chart-legend-row">
             {complianceDays.map((d, i) => (
               <div key={d} className="chart-legend-item">
@@ -425,7 +432,7 @@ function AnalyticsSection() {
             </div>
             <span className="chart-badge" style={{ background:"var(--danger-soft)", color:"var(--danger)" }}>24 today</span>
           </div>
-          <BarChart data={dailyViolations} labels={complianceDays} color="#9FA1FF" />
+          <BarChart data={dailyViolations} labels={complianceDays} color="#2563EB" />
         </div>
       </div>
 
@@ -456,39 +463,24 @@ function AnalyticsSection() {
         <div className="chart-card">
           <div className="chart-card-header">
             <div>
-              <h3 className="chart-title">Zone Compliance</h3>
-              <p className="chart-subtitle">Compliance rate by monitoring zone</p>
+              <h3 className="chart-title">Violations by Hour</h3>
+              <p className="chart-subtitle">When during the day violations occur most</p>
             </div>
+            <span className="chart-badge" style={{ background:"var(--primary-soft)", color:"var(--primary)" }}>Peak: 3 PM</span>
           </div>
-          <div className="zone-bars">
-            {zoneData.map(z => {
-              const col = z.compliance >= 90 ? "var(--success)" : z.compliance >= 85 ? "var(--warning)" : "var(--danger)";
-              return (
-                <div key={z.zone} className="zone-bar-row">
-                  <div className="zone-bar-label">
-                    <span className="zone-name">{z.zone}</span>
-                    <span className="zone-pct" style={{ color: col }}>{z.compliance}%</span>
-                  </div>
-                  <div className="zone-bar-track">
-                    <div className="zone-bar-fill" style={{ width:`${z.compliance}%`, background: col }} />
-                  </div>
-                  <span className="zone-bar-meta">{z.violations} violations recorded today</span>
-                </div>
-              );
-            })}
-          </div>
+          <HourlyChart data={hourlyData} />
           <div className="zone-summary-cards">
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color:"var(--success)" }}>93%</span>
-              <span className="zone-summary-label">Best zone</span>
+              <span className="zone-summary-val" style={{ color:"var(--danger)" }}>3 PM</span>
+              <span className="zone-summary-label">Peak hour</span>
             </div>
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color:"var(--danger)" }}>78%</span>
-              <span className="zone-summary-label">Needs attention</span>
+              <span className="zone-summary-val" style={{ color:"var(--primary)" }}>47</span>
+              <span className="zone-summary-label">Total today</span>
             </div>
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color:"var(--primary)" }}>84.3%</span>
-              <span className="zone-summary-label">Site average</span>
+              <span className="zone-summary-val" style={{ color:"var(--success)" }}>8 AM</span>
+              <span className="zone-summary-label">Quietest hour</span>
             </div>
           </div>
         </div>
@@ -554,6 +546,37 @@ function BarChart({ data, labels, color }: { data: number[]; labels: string[]; c
         </g>;
       })}
     </svg>
+  );
+}
+
+function HourlyChart({ data }: { data: { hour: string; count: number }[] }) {
+  const max = Math.max(...data.map(d => d.count));
+  return (
+    <div className="hourly-chart">
+      {data.map(d => {
+        const pct = (d.count / max) * 100;
+        const isPeak = d.count === max;
+        return (
+          <div key={d.hour} className="hourly-row">
+            <span className="hourly-label">{d.hour}</span>
+            <div className="hourly-track">
+              <div
+                className="hourly-fill"
+                style={{
+                  width: `${pct}%`,
+                  background: isPeak
+                    ? "linear-gradient(90deg, #1D4ED8, #DC2626)"
+                    : "linear-gradient(90deg, #2563EB, #60A5FA)",
+                }}
+              />
+            </div>
+            <span className="hourly-count" style={{ color: isPeak ? "#DC2626" : "var(--text-muted)" }}>
+              {d.count}
+            </span>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -840,13 +863,13 @@ function ReportPDF() {
    SETTINGS
 ═══════════════════════════════════════ */
 function SettingsSection() {
-  const [conf, setConf] = useState(45);
-  const [iou, setIou]   = useState(50);
-  const [zone, setZone] = useState("all");
+  const [conf, setConf]   = useState(45);
+  const [iou, setIou]     = useState(50);
+  const [votes, setVotes] = useState(8);
   return (
     <>
       <p className="section-subtitle" style={{ marginBottom: 28 }}>
-        Adjust detection sensitivity and monitoring parameters for each zone.
+        Adjust detection sensitivity and monitoring parameters for the camera system.
       </p>
       <div className="card settings-card">
         <div className="settings-grid">
@@ -869,13 +892,13 @@ function SettingsSection() {
             <p style={{ fontSize:"0.78rem", color:"var(--text-muted)", marginTop:6 }}>Controls how closely tracked people must overlap between frames.</p>
           </div>
           <div className="form-group">
-            <label>Active monitoring zone</label>
-            <select className="form-input" value={zone} onChange={e => setZone(e.target.value)}>
-              <option value="all">All zones</option>
-              <option value="a">Zone A only</option>
-              <option value="b">Zone B only</option>
-              <option value="c">Zone C only</option>
-            </select>
+            <label>Vote-buffer consensus (frames)</label>
+            <input type="range" min={1} max={30} value={votes} onChange={e => setVotes(Number(e.target.value))} />
+            <div className="range-display">
+              <span>Current: <strong>{votes} / 15 frames</strong></span>
+              <span>Recommended: 6–10</span>
+            </div>
+            <p style={{ fontSize:"0.78rem", color:"var(--text-muted)", marginTop:6 }}>How many consecutive frames must agree before a violation is confirmed.</p>
           </div>
         </div>
         <hr className="settings-divider"/>
