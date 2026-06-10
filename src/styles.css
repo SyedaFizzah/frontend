@@ -6,29 +6,29 @@
    ============================================================ */
 
 :root {
-  /* Brand — rich azure blue palette */
-  --primary: #2563EB;
-  --primary-hover: #1D4ED8;
-  --primary-soft: #EFF6FF;
-  --primary-soft-2: #DBEAFE;
-  --accent: #60A5FA;
+  /* Brand — slate/charcoal with teal accent */
+  --primary: #0F766E;
+  --primary-hover: #0D6B63;
+  --primary-soft: #F0FDFA;
+  --primary-soft-2: #CCFBF1;
+  --accent: #2DD4BF;
 
   /* Surfaces */
-  --bg-app: #F0F7FF;
+  --bg-app: #F1F5F9;
   --bg-surface: #FFFFFF;
-  --bg-subtle: #DBEAFE;
-  --bg-hover: #EFF6FF;
+  --bg-subtle: #E2E8F0;
+  --bg-hover: #F8FAFC;
 
   /* Text */
   --text-primary: #0F172A;
-  --text-secondary: #1E40AF;
-  --text-muted: #475569;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
   --text-light: #94A3B8;
 
   /* Borders */
-  --border: #BFDBFE;
-  --border-strong: #93C5FD;
-  --border-focus: #2563EB;
+  --border: #CBD5E1;
+  --border-strong: #94A3B8;
+  --border-focus: #0F766E;
 
   /* Status */
   --success: #059669;
@@ -37,15 +37,15 @@
   --warning-soft: #FFFBEB;
   --danger: #DC2626;
   --danger-soft: #FEF2F2;
-  --info: #0284C7;
+  --info: #0369A1;
   --info-soft: #E0F2FE;
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(37, 99, 235, 0.06);
-  --shadow-sm: 0 1px 4px rgba(37, 99, 235, 0.1), 0 1px 2px rgba(37, 99, 235, 0.06);
-  --shadow-md: 0 4px 10px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
-  --shadow-lg: 0 10px 28px -5px rgba(37, 99, 235, 0.14), 0 8px 12px -6px rgba(37, 99, 235, 0.08);
-  --shadow-xl: 0 25px 50px -12px rgba(37, 99, 235, 0.22);
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 10px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 28px -5px rgba(15, 23, 42, 0.12), 0 8px 12px -6px rgba(15, 23, 42, 0.07);
+  --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.2);
 
   /* Radius */
   --radius-xs: 4px;
