@@ -266,16 +266,22 @@ function DashboardPage() {
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                { label: "Email", value: user.email ?? "—" },
-                { label: "Role", value: user.role },
-                { label: "Status", value: "Active" },
-              ].map((row) => (
-                <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "var(--bg-app, #f3f4f6)", borderRadius: 6, border: "1px solid var(--border, #e5e7eb)" }}>
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{row.label}</span>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600 }}>{row.value}</span>
-                </div>
-              ))}
+{[
+  { label: "Email", value: user.email ?? "—" },
+  { label: "Role", value: user.role },
+].map((row) => (
+  <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "var(--bg-app, #f3f4f6)", borderRadius: 6, border: "1px solid var(--border, #e5e7eb)" }}>
+    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{row.label}</span>
+    <span style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600 }}>{row.value}</span>
+  </div>
+))}
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "var(--bg-app, #f3f4f6)", borderRadius: 6, border: "1px solid var(--border, #e5e7eb)" }}>
+  <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Status</span>
+  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.85rem", fontWeight: 600, color: "#059669" }}>
+    <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#059669", display: "inline-block" }} />
+    Active
+  </span>
+</div>
             </div>
           </div>
         </div>
