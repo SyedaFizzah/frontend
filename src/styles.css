@@ -7,29 +7,39 @@
    ============================================================ */
 
 :root {
-  /* Brand */
-  --primary:        #1073E5;
-  --primary-hover:  #0a5bbf;
-  --primary-soft:   #EBF2FF;
-  --primary-soft-2: #AFD5EB;
-  --accent:         #AFD5EB;
-
-  /* Surfaces */
-  --bg-app:     #F6F1F1;
-  --bg-surface: #FFFFFF;
-  --bg-subtle:  #F0F5FF;
-  --bg-hover:   #F8F9FC;
-
-  /* Text */
-  --text-primary:   #0A0A0A;
-  --text-secondary: #1073E5;
-  --text-muted:     #555555;
-  --text-light:     #999999;
-
+:root {
+  /* Primary Navy Blue Theme */
+  --primary: #1e3a5f;          /* Navy blue - main brand color */
+  --primary-soft: #f0f4f8;      /* Light navy blue background */
+  
+  /* Secondary Colors */
+  --secondary: #2c5aa0;        /* Medium navy blue */
+  --secondary-soft: #eff6ff;   /* Light secondary background */
+  
+  /* Status Colors */
+  --danger: #c41e3a;           /* Red for critical alerts */
+  --danger-soft: #fef2f2;      /* Light red background */
+  
+  --warning: #2c5aa0;          /* Navy blue for warnings */
+  --warning-soft: #f0f4f8;     /* Light warning background */
+  
+  --success: #059669;          /* Green for compliant/success */
+  --success-soft: #f0fdf4;     /* Light green background */
+  
+  --info: #1e3a5f;             /* Navy blue for info */
+  --info-soft: #f0f4f8;        /* Light info background */
+  
+  /* Text Colors */
+  --text-primary: #1f2937;     /* Dark gray for primary text */
+  --text-muted: #6b7280;       /* Medium gray for secondary text */
+  
+  /* Backgrounds */
+  --bg-primary: #ffffff;       /* White background */
+  --bg-secondary: #f9fafb;    /* Light gray background */
+  
   /* Borders */
-  --border:        #D0D8E4;
-  --border-strong: #1073E5;
-  --border-focus:  #1073E5;
+  --border-color: #e5e7eb;    /* Light gray for borders */
+}
 
   /* Status */
   --success:      #0A7A45;
