@@ -42,18 +42,8 @@ function LoginPage() {
 
   return (
     <AuthLayout
-      heroBadge={
-        <>
-          <span className="pulse-dot" />
-          Enterprise PPE Monitoring
-        </>
-      }
-      heroTitle="Workplace safety, powered by intelligence."
-      heroText="Real-time computer vision detects PPE compliance violations, generates audit trails, and delivers AI-driven safety insights for industrial environments."
-      stats={[
-        { value: "24/7", label: "Continuous monitoring" },
-        { value: "AI-Powered", label: "Smart safety insights" },
-      ]}
+      heroTitle="WORKPLACE SAFETY"
+      heroText="Real-time detection and automated audit trails for safety of industrial and construction environments."
     >
 
       <div className="auth-header">
