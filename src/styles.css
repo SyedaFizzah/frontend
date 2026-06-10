@@ -556,7 +556,7 @@ select.form-input {
 
 .sidebar {
   width: 248px;
-  background: linear-gradient(175deg, #0B1D1C 0%, #134E4A 55%, #115E59 100%);
+  background: linear-gradient(175deg, #0a2050 0%, #133E87 55%, #1a4fa0 100%);
   border-right: none;
   box-shadow: 4px 0 32px rgba(14, 30, 80, 0.25);
   display: flex;
