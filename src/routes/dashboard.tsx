@@ -230,7 +230,7 @@ function DashboardPage() {
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </div>
-            <div className={`user-dropdown${userMenu ? " active" : ""}`}>
+            <div className={`user-dropdown${userMenu ? " active" : ""}`} style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "6px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
               <a role="button">
                 <Ico>
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -248,7 +248,7 @@ function DashboardPage() {
                 Sign out
               </a>
             </div>
-            <div className={`notifications-panel${notifOpen ? " active" : ""}`}>
+            <div className={`notifications-panel${notifOpen ? " active" : ""}`} style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "6px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
               <div className="notif-header">
                 <h3>Notifications</h3>
                 <button>Mark all read</button>
@@ -410,7 +410,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                 <path d="M23 7l-7 5 7 5V7z" />
                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
               </svg>
-              <h3>Live Camera — Zone A</h3>
+              <h3>Live Camera</h3>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div className="feed-meta">
@@ -418,7 +418,6 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                   <span className="live-dot" />
                   <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--danger)" }}>Recording</span>
                 </span>
-                <span>        fps</span>
               </div>
               <button className="btn" style={{ whiteSpace: "nowrap", padding: "8px 16px", background: "#1e3a5f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }} onClick={() => alert("Opening camera connection dialog...")}>
                 <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
