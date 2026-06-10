@@ -43,7 +43,7 @@ function LoginPage() {
   return (
     <AuthLayout
   heroTitle="Workplace Safety"
-  heroText="Real-time detection and automated audit trails for safety the of industrial and construction environments."
+  heroText="Real-time detection and automated audit trails for the safety of industrial and construction environments."
     >
 
       <div className="auth-header">
