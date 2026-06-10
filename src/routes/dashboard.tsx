@@ -425,7 +425,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                   <span className="live-dot" />
                   <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--danger)" }}>Recording</span>
                 </span>
-                <span>1080p · 30 fps</span>
+                <span>           </span>
               </div>
               <button className="btn btn-primary" style={{ whiteSpace: "nowrap", padding: "8px 16px" }} onClick={() => alert("Opening camera connection dialog...")}>
                 <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
@@ -468,7 +468,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
         </div>
 
         {/* Recent Activity */}
-        <div className="activity-panel">
+        <div className="activity-panel" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <div className="card-header">
             <div className="card-header-title">
               <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -481,7 +481,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
               {paused ? "▶ Resume" : "⏸ Pause"}
             </button>
           </div>
-          <div className="activity-feed">
+          <div className="activity-feed" style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
             {activity.map((ev) => (
               <ActivityItem key={ev.key} event={ev} />
             ))}
@@ -491,8 +491,8 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
 
       {/* Action Buttons */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <button className="btn btn-primary" style={{ padding: 20, height: "auto", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={goAnalytics}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <button className="btn btn-primary" onClick={goAnalytics}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8 }}>
             <line x1="18" y1="20" x2="18" y2="10" />
             <line x1="12" y1="20" x2="12" y2="4" />
             <line x1="6" y1="20" x2="6" y2="14" />
@@ -503,8 +503,8 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
             <span style={{ fontSize: "0.85rem", display: "block", opacity: 0.9 }}>Charts &amp; trends</span>
           </div>
         </button>
-        <button className="btn btn-primary" style={{ padding: 20, height: "auto", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={goReports}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <button className="btn btn-primary" onClick={goReports}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8 }}>
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
           </svg>
