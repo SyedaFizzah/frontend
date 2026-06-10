@@ -54,7 +54,6 @@ function LoginPage() {
     { value: "24/7", label: "Continuous monitoring" },
     { value: "AI", label: "Powered detection" },
   ]}
->
     >
 
       <div className="auth-header">
