@@ -156,7 +156,7 @@ function DashboardPage() {
   };
 
   return (
-    <div className="dashboard-body">
+    <div className="dashboard-body" style={{ background: "#ffffff" }}>
       {/* SIDEBAR */}
       <aside className={`sidebar${sidebarOpen ? " open" : ""}`} style={{ background: "#1e3a5f", color: "#ffffff" }}>
         <div className="sidebar-logo">
@@ -198,13 +198,6 @@ function DashboardPage() {
               <path d="M4 12h16M4 6h16M4 18h16" />
             </svg>
           </button>
-          <div className="header-search">
-            <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-            <input type="text" placeholder="Search violations, personnel, zones…" />
-          </div>
           <div style={{ flex: 1 }} />
           <div className="header-actions">
             <button
@@ -408,7 +401,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
 
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 24, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, marginBottom: 24 }}>
         {/* Live Camera Feed */}
         <div className="feed-container">
           <div className="card-header" style={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -425,7 +418,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                   <span className="live-dot" />
                   <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--danger)" }}>Recording</span>
                 </span>
-                <span>1080p · 30 fps</span>
+                <span>              </span>
               </div>
               <button className="btn btn-primary" style={{ whiteSpace: "nowrap", padding: "8px 16px" }} onClick={() => alert("Opening camera connection dialog...")}>
                 <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
