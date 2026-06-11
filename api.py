@@ -16,6 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from ultralytics import YOLO
 from pydantic import BaseModel
+from fastapi.concurrency import run_in_threadpool
+import asyncio
 
 # ══════════════════════════════════════════════
 #  DATABASE SETUP & ENV CONFIG (.env Fix)
@@ -387,11 +389,22 @@ def process_video_feed(url: str):
     cap.release()
 
 @app.get("/video_feed")
+@app.get("/video_feed")
 async def video_feed(url: str = Query(...)):
     if not url.startswith("http"): url = "http://" + url
     if not url.endswith("/video"): url = url.rstrip("/") + "/video"
-    return StreamingResponse(process_video_feed(url), media_type="multipart/x-mixed-replace; boundary=frame")
 
+    async def async_generator():
+        loop = asyncio.get_event_loop()
+        gen = process_video_feed(url)
+        while True:
+            try:
+                frame = await loop.run_in_executor(None, next, gen)
+                yield frame
+            except StopIteration:
+                break
+
+    return StreamingResponse(async_generator(), media_type="multipart/x-mixed-replace; boundary=frame")
 # ══════════════════════════════════════════════
 #  DASHBOARD ENDPOINTS (SQL Engine Driven)
 # ══════════════════════════════════════════════
