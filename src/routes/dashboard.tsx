@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import logo from "@/assets/logo.png";
+import test1 from "@/assets/test1.jpeg";
+import test2 from "@/assets/test2.jpeg";
+import test3 from "@/assets/test3.jpeg";
+import test4 from "@/assets/test4.jpeg";
 
 const heroImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23E5E7EB' width='800' height='600'/%3E%3C/svg%3E";
 
@@ -393,7 +397,10 @@ const IcoCog = () => (
 function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; goReports: () => void }) {
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [paused, setPaused] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const keyRef = useRef(0);
+
+  const images = [test1, test2, test3, test4];
 
   const makeEvent = (): ActivityEvent => {
     const tpl = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
@@ -413,6 +420,14 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
     }, 3800);
     return () => clearInterval(t);
   }, [paused]);
+
+  // Image slideshow interval
+  useEffect(() => {
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 4000); // Change image every 4 seconds
+    return () => clearInterval(imageInterval);
+  }, []);
 
   return (
     <>
@@ -442,15 +457,33 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
               </button>
             </div>
           </div>
-          <div className="camera-display" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 380, background: "#f3f4f6", borderRadius: "0 0 7px 7px" }}>
-            <div style={{ textAlign: "center", color: "#9ca3af" }}>
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth={1.25} strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 14 }}>
-                <path d="M23 7l-7 5 7 5V7z" />
-                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-              </svg>
-              <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#6b7280", margin: "0 0 4px" }}>No camera connected</p>
-              <p style={{ fontSize: "0.78rem", color: "#9ca3af", margin: 0 }}>Click Connect to add a camera feed</p>
-            </div>
+          <div className="camera-display" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 380, background: "#f3f4f6", borderRadius: "0 0 7px 7px", overflow: "hidden", position: "relative" }}>
+            <style>{`
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              .camera-image {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                animation: fadeIn 1s ease-in-out;
+              }
+            `}</style>
+            {images.map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`Camera feed ${idx + 1}`}
+                className="camera-image"
+                style={{
+                  opacity: idx === currentImageIndex ? 1 : 0,
+                  transition: "opacity 1s ease-in-out",
+                  zIndex: idx === currentImageIndex ? 1 : 0,
+                }}
+              />
+            ))}
           </div>
         </div>
 
