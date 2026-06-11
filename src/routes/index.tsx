@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AuthLayout, EyeIcon } from "@/components/AuthLayout";
+import { API_BASE_URL } from "@/lib/api-base";
 import { getUser, setUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
@@ -34,7 +35,7 @@ function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/login", {
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role: loginMode }),

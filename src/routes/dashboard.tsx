@@ -5,6 +5,7 @@ import test1 from "@/assets/test1.jpeg";
 import test2 from "@/assets/test2.jpeg";
 import test3 from "@/assets/test3.jpeg";
 import test4 from "@/assets/test4.jpeg";
+import { API_BASE_URL } from "@/lib/api-base";
 
 const heroImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23E5E7EB' width='800' height='600'/%3E%3C/svg%3E";
 
@@ -74,7 +75,7 @@ const hourlyData: { hour: string; count: number }[] = [];
 const formatViol = (v: string) => v.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const statusClass = (s: string) => (s === "Critical" ? "status-danger" : s === "High" ? "status-warning" : "status-info");
 
-const API = "http://127.0.0.1:8000";
+const API = API_BASE_URL;
 
 interface AnalyticsData {
   complianceData: number[];
@@ -425,7 +426,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
     if (activeCameraUrl) {
       // Connect to Real-time FastApi Stream Logging!
       setActivity([]);
-      const sse = new EventSource("http://127.0.0.1:8000/logs");
+      const sse = new EventSource(`${API}/logs`);
       sse.onmessage = (e) => {
         const ev = JSON.parse(e.data);
         setActivity((prev) => [ev, ...prev].slice(0, 50));
@@ -433,7 +434,7 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
       return () => { sse.close(); active = false; };
     } else {
       // Fetch historical logs from API when unhooked.
-      fetch("http://127.0.0.1:8000/history")
+      fetch(`${API}/history`)
         .then(res => res.json())
         .then(data => {
           if (active) setActivity(data);
@@ -560,9 +561,9 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
               <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: 0 }}>Enter the IP camera address to begin real-time analysis streaming.</p>
             </div>
             <div className="form-group" style={{ marginBottom: 24 }}>
-              <input type="text" className="form-input" placeholder="e.g. 192.168.0.100:8080" value={inputUrl} onChange={e => setInputUrl(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && inputUrl) { setActiveCameraUrl(`http://127.0.0.1:8000/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }} />
+              <input type="text" className="form-input" placeholder="e.g. 192.168.0.100:8080" value={inputUrl} onChange={e => setInputUrl(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && inputUrl) { setActiveCameraUrl(`${API}/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }} />
             </div>
-            <button className="btn btn-primary" style={{ width: "100%", height: 42, fontSize: "0.875rem" }} onClick={() => { if (inputUrl) { setActiveCameraUrl(`http://127.0.0.1:8000/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }}>Start Stream</button>
+            <button className="btn btn-primary" style={{ width: "100%", height: 42, fontSize: "0.875rem" }} onClick={() => { if (inputUrl) { setActiveCameraUrl(`${API}/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }}>Start Stream</button>
           </div>
         </div>
       )}
@@ -901,7 +902,7 @@ function ViolationsSection({ violations }: { violations: Violation[] }) {
             <button className="modal-close" onClick={() => setActive(null)} aria-label="Close"><Ico><path d="M18 6L6 18M6 6l12 12" /></Ico></button>
             {active.pic_path ? (
               <img
-                src={`http://127.0.0.1:8000/violation_image/${active.pic_path}`}
+                src={`${API}/violation_image/${active.pic_path}`}
                 alt="Violation snapshot"
                 style={{ width: "100%", borderRadius: 8, objectFit: "contain", maxHeight: 420 }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
