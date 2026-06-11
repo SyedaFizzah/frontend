@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-jose
+passlib
+bcrypt
+ultralytics
+opencv-python-headless
+face_recognition
+fpdf2
+google-generativeai
