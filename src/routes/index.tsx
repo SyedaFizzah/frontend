@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AuthLayout, EyeIcon } from "@/components/AuthLayout";
-import { getUser, setUser, nameFromEmail } from "@/lib/auth";
+import { getUser, setUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,46 +19,82 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loginMode, setLoginMode] = useState<"staff" | "owner">("staff");
 
   useEffect(() => {
     const u = getUser();
     if (u?.loggedIn) navigate({ to: "/dashboard" });
   }, [navigate]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setLoading(true);
-    setTimeout(() => {
-      setUser({ name: nameFromEmail(email), email, role: "Site Supervisor", loggedIn: true });
-      navigate({ to: "/dashboard" });
-    }, 800);
-  };
+    setError("");
 
-  const googleLogin = () => {
-    setUser({ name: "Google User", email: "user@gmail.com", role: "Site Supervisor", loggedIn: true });
-    navigate({ to: "/dashboard" });
+    try {
+      const res = await fetch("http://127.0.0.1:8000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: loginMode }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || "Login failed");
+      }
+
+      setUser({ name: data.name, email, role: data.role, loggedIn: true });
+      navigate({ to: "/dashboard" });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout
-  heroTitle="Workplace Safety"
-  heroText="Real-time detection and automated audit trails for the safety of industrial and construction environments."
+      heroTitle="Safety Regulations through AI and Digitalization inside Plant"
+      heroText="Real-time detection and automated audit trails for the safety of industrial and construction environments."
     >
+      <div style={{ position: "absolute", top: 24, right: 32, zIndex: 10 }}>
+        <button
+          onClick={() => setLoginMode(m => m === "staff" ? "owner" : "staff")}
+          style={{
+            display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer",
+            color: loginMode === "owner" ? "var(--primary)" : "var(--text-muted)", fontSize: "0.85rem", fontWeight: 600
+          }}
+          title="Toggle Site Owner Login"
+        >
+          <span style={{ marginTop: 2 }}>{loginMode === "owner" ? "Site Owner Mode" : "Admin Portal"}</span>
+          <div style={{
+            width: 38, height: 38, borderRadius: "50%", background: loginMode === "owner" ? "var(--primary-soft)" : "#f1f5f9",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            border: loginMode === "owner" ? "2px solid var(--primary)" : "2px solid #e2e8f0"
+          }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+        </button>
+      </div>
 
       <div className="auth-header">
-        <h1>Welcome back</h1>
+        <h1>{loginMode === "owner" ? "Site Owner Portal" : "Welcome back"}</h1>
         <p>Sign in to access the PPE monitoring dashboard.</p>
       </div>
 
       <form onSubmit={submit}>
         <div className="form-group">
-          <label htmlFor="email">Work email</label>
+          <label htmlFor="email">{loginMode === "owner" ? "Owner Email" : "Work email"}</label>
           <input
             type="email"
             id="email"
             className="form-input"
-            placeholder="name@company.com"
+            placeholder={loginMode === "owner" ? "owner@safeguard.com" : "name@company.com"}
             required
             autoComplete="email"
             value={email}
@@ -85,21 +121,27 @@ function LoginPage() {
           </div>
         </div>
 
+        {error && (
+          <div style={{ color: "var(--danger)", fontSize: "0.85rem", marginBottom: 16, background: "var(--danger-soft)", padding: "10px 14px", borderRadius: 6, fontWeight: 500 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, marginRight: 6, verticalAlign: "-2px", display: "inline-block" }}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            {error}
+          </div>
+        )}
+
         <div className="auth-helper">
           <label className="checkbox-label">
             <input type="checkbox" /> Remember me
           </label>
-          <a href="#" className="auth-link">Forgot password?</a>
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+        <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ background: loginMode === "owner" ? "var(--primary)" : undefined }}>
           {loading ? (
             <>
               <span className="spinner" /> Signing in…
             </>
           ) : (
             <>
-              Sign in
+              {loginMode === "owner" ? "Access Owner Dashboard" : "Sign in"}
               <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14m-7-7 7 7-7 7" />
               </svg>
@@ -107,25 +149,6 @@ function LoginPage() {
           )}
         </button>
       </form>
-
-      <div className="auth-divider">
-        <span>Or continue with</span>
-      </div>
-
-      <button type="button" className="btn btn-outline btn-block" onClick={googleLogin}>
-        <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-          <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-          <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-          <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-        </svg>
-
-        Continue with Google
-      </button>
-
-      <p className="auth-footer">
-        New to SafeGuard? <Link to="/signup" className="auth-link">Sign up</Link>
-      </p>
 
     </AuthLayout>
   );

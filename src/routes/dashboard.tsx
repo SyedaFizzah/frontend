@@ -29,7 +29,7 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Section = "overview" | "analytics" | "violations" | "reports" | "settings";
+type Section = "overview" | "analytics" | "violations" | "reports" | "settings" | "authorize";
 
 interface Violation {
   id: string;
@@ -39,18 +39,10 @@ interface Violation {
   timestamp: string;
   confidence: string;
   status: "Critical" | "High" | "Medium";
+  pic_path?: string;
 }
 
-const dummyViolations: Violation[] = [
-  { id: "V-001", name: "Fatima Khan", trackId: 1, violation: "no_helmet", timestamp: "2026-05-13 18:42:51", confidence: "70.3%", status: "Critical" },
-  { id: "V-002", name: "Fatima Khan", trackId: 1, violation: "no_goggle", timestamp: "2026-05-13 18:42:51", confidence: "70.1%", status: "High" },
-  { id: "V-003", name: "Fatima Khan", trackId: 1, violation: "no_helmet", timestamp: "2026-05-13 16:11:08", confidence: "82.4%", status: "Critical" },
-  { id: "V-017", name: "Fizza Ahmed", trackId: 2, violation: "no_helmet", timestamp: "2026-05-12 08:22:14", confidence: "77.8%", status: "Critical" },
-  { id: "V-018", name: "Fizza Ahmed", trackId: 2, violation: "no_gloves", timestamp: "2026-05-12 08:24:01", confidence: "68.5%", status: "Medium" },
-  { id: "V-019", name: "Raza Javed", trackId: 5, violation: "no_vest", timestamp: "2026-05-12 11:45:02", confidence: "80.2%", status: "Medium" },
-  { id: "V-024", name: "Ahmed Hassan", trackId: 3, violation: "no_boots", timestamp: "2026-05-11 15:05:33", confidence: "61.2%", status: "Medium" },
-  { id: "V-025", name: "Ahmed Hassan", trackId: 3, violation: "no_helmet", timestamp: "2026-05-11 09:18:22", confidence: "88.7%", status: "Critical" },
-];
+const dummyViolations: Violation[] = [];
 
 interface ActivityEvent {
   key: number;
@@ -75,29 +67,27 @@ const activityTemplates: Omit<ActivityEvent, "key" | "time">[] = [
 
 const complianceData = [88.2, 85.6, 91.3, 87.5, 90.1, 88.7, 87.5];
 const complianceDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const dailyViolations = [3, 5, 2, 7, 4, 1, 2];
-const violationTypes = [
-  { label: "No Helmet", count: 14, color: "#1e3a5f" },
-  { label: "No Goggles", count: 6, color: "#2c5aa0" },
-  { label: "No Gloves", count: 4, color: "#4a7fc1" },
-  { label: "No Boots", count: 3, color: "#7aaee0" },
-  { label: "No Vest", count: 2, color: "#b8d4ef" },
-];
-const hourlyData = [
-  { hour: "8 AM", count: 2 },
-  { hour: "9 AM", count: 5 },
-  { hour: "10 AM", count: 8 },
-  { hour: "11 AM", count: 4 },
-  { hour: "12 PM", count: 3 },
-  { hour: "1 PM", count: 6 },
-  { hour: "2 PM", count: 3 },
-  { hour: "3 PM", count: 9 },
-  { hour: "4 PM", count: 5 },
-  { hour: "5 PM", count: 2 },
-];
+const dailyViolations = [0, 0, 0, 0, 0, 0, 0];
+const violationTypes: { label: string; count: number; color: string }[] = [];
+const hourlyData: { hour: string; count: number }[] = [];
 
 const formatViol = (v: string) => v.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const statusClass = (s: string) => (s === "Critical" ? "status-danger" : s === "High" ? "status-warning" : "status-info");
+
+const API = "http://127.0.0.1:8000";
+
+interface AnalyticsData {
+  complianceData: number[];
+  complianceDays: string[];
+  avgCompliance: number;
+  dailyViolations: number[];
+  violationTypes: { label: string; count: number; color: string }[];
+  totalViolations: number;
+  hourlyData: { hour: string; count: number }[];
+  todayViolations: number;
+  peakHour: string;
+  quietestHour: string;
+}
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -106,6 +96,13 @@ function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [violationsData, setViolationsData] = useState<Violation[]>([]);
+
+  useEffect(() => {
+    fetch(`${API}/analytics`).then(r => r.json()).then(setAnalyticsData).catch(() => { });
+    fetch(`${API}/violations`).then(r => r.json()).then(setViolationsData).catch(() => { });
+  }, []);
 
   useEffect(() => {
     const u = getUser();
@@ -146,6 +143,7 @@ function DashboardPage() {
     analytics: "Analytics",
     violations: "Violations",
     reports: "Safety Reports",
+    authorize: "Authorize",
     settings: "Settings",
   };
 
@@ -163,6 +161,9 @@ function DashboardPage() {
           <NavItem active={section === "analytics"} onClick={() => setSection("analytics")} label="Analytics" icon={<IcoChart />} />
           <NavItem active={section === "violations"} onClick={() => setSection("violations")} label="Violations" icon={<IcoAlert />} />
           <NavItem active={section === "reports"} onClick={() => setSection("reports")} label="Safety Reports" icon={<IcoFile />} />
+          {user.role === "Site Owner" && (
+            <NavItem active={section === "authorize"} onClick={() => setSection("authorize")} label="Authorize" icon={<Ico><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></Ico>} />
+          )}
           <NavItem active={section === "settings"} onClick={() => setSection("settings")} label="Settings" icon={<IcoCog />} />
         </nav>
         <div className="sidebar-bottom">
@@ -239,14 +240,19 @@ function DashboardPage() {
             <OverviewSection goAnalytics={() => setSection("analytics")} goReports={() => setSection("reports")} />
           </section>
           <section className={`content-section${section === "analytics" ? " active" : ""}`}>
-            <AnalyticsSection />
+            <AnalyticsSection data={analyticsData} />
           </section>
           <section className={`content-section${section === "violations" ? " active" : ""}`}>
-            <ViolationsSection />
+            <ViolationsSection violations={violationsData} />
           </section>
           <section className={`content-section${section === "reports" ? " active" : ""}`}>
             <ReportsSection />
           </section>
+          {user.role === "Site Owner" && (
+            <section className={`content-section${section === "authorize" ? " active" : ""}`}>
+              <AuthorizeSection />
+            </section>
+          )}
           <section className={`content-section${section === "settings" ? " active" : ""}`}>
             <SettingsSection />
           </section>
@@ -275,58 +281,58 @@ function DashboardPage() {
                 { label: "Role", value: user.role },
                 { label: "Status", value: "Active", isStatus: true },
               ].map((row) => (
-  <div
-    key={row.label}
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "10px 14px",
-      background: "var(--bg-app, #f3f4f6)",
-      borderRadius: 6,
-      border: "1px solid var(--border, #e5e7eb)",
-    }}
-  >
-    <span
-      style={{
-        fontSize: "0.78rem",
-        color: "var(--text-muted)",
-        fontWeight: 600,
-        textTransform: "uppercase",
-        letterSpacing: "0.05em",
-      }}
-    >
-      {row.label}
-    </span>
+                <div
+                  key={row.label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    background: "var(--bg-app, #f3f4f6)",
+                    borderRadius: 6,
+                    border: "1px solid var(--border, #e5e7eb)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "var(--text-muted)",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {row.label}
+                  </span>
 
-    <span
-      style={{
-        fontSize: "0.85rem",
-        fontWeight: 600,
-        color:
-          row.isStatus && row.value === "Active"
-            ? "#16a34a" // green text
-            : "var(--text-primary)",
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-      }}
-    >
-      {row.isStatus && row.value === "Active" && (
-        <span
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            backgroundColor: "#22c55e",
-            display: "inline-block",
-          }}
-        />
-      )}
-      {row.value}
-    </span>
-  </div>
-))}
+                  <span
+                    style={{
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      color:
+                        row.isStatus && row.value === "Active"
+                          ? "#16a34a" // green text
+                          : "var(--text-primary)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    {row.isStatus && row.value === "Active" && (
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          backgroundColor: "#22c55e",
+                          display: "inline-block",
+                        }}
+                      />
+                    )}
+                    {row.value}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -399,6 +405,9 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
   const [paused, setPaused] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const keyRef = useRef(0);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [inputUrl, setInputUrl] = useState("");
+  const [activeCameraUrl, setActiveCameraUrl] = useState<string | null>(null);
 
   const images = [test1, test2, test3, test4];
 
@@ -412,14 +421,34 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
   };
 
   useEffect(() => {
-    const seed: ActivityEvent[] = [];
-    for (let i = 0; i < 7; i++) seed.push(makeEvent());
-    setActivity(seed);
-    const t = setInterval(() => {
-      if (!paused) setActivity((a) => [makeEvent(), ...a].slice(0, 30));
-    }, 3800);
-    return () => clearInterval(t);
-  }, [paused]);
+    let active = true;
+    if (activeCameraUrl) {
+      // Connect to Real-time FastApi Stream Logging!
+      setActivity([]);
+      const sse = new EventSource("http://127.0.0.1:8000/logs");
+      sse.onmessage = (e) => {
+        const ev = JSON.parse(e.data);
+        setActivity((prev) => [ev, ...prev].slice(0, 50));
+      };
+      return () => { sse.close(); active = false; };
+    } else {
+      // Fetch historical logs from API when unhooked.
+      fetch("http://127.0.0.1:8000/history")
+        .then(res => res.json())
+        .then(data => {
+          if (active) setActivity(data);
+        })
+        .catch(err => {
+          console.error(err);
+          // Fallback to random test seeds if API falls
+          const seed: ActivityEvent[] = [];
+          for (let i = 0; i < 7; i++) seed.push(makeEvent());
+          if (active) setActivity(seed);
+        });
+
+      return () => { active = false; };
+    }
+  }, [activeCameraUrl]);
 
   // Image slideshow interval
   useEffect(() => {
@@ -448,12 +477,24 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                   <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--danger)" }}>Recording</span>
                 </span>
               </div>
-              <button className="btn" style={{ whiteSpace: "nowrap", padding: "8px 16px", background: "#1e3a5f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }} onClick={() => alert("Opening camera connection dialog...")}>
-                <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
-                  <path d="M12 5v14" />
-                  <path d="M19 12H5" />
-                </svg>
-                Connect
+              <button className="btn" style={{ whiteSpace: "nowrap", padding: "8px 16px", background: activeCameraUrl ? "#c41e3a" : "#1e3a5f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }} onClick={() => { if (activeCameraUrl) setActiveCameraUrl(null); else setConnectOpen(true); }}>
+                {activeCameraUrl ? (
+                  <>
+                    <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                      <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                      <line x1="12" y1="2" x2="12" y2="12" />
+                    </svg>
+                    Disconnect
+                  </>
+                ) : (
+                  <>
+                    <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                      <path d="M12 5v14" />
+                      <path d="M19 12H5" />
+                    </svg>
+                    Connect
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -471,19 +512,18 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
                 animation: fadeIn 1s ease-in-out;
               }
             `}</style>
-            {images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`Camera feed ${idx + 1}`}
-                className="camera-image"
-                style={{
-                  opacity: idx === currentImageIndex ? 1 : 0,
-                  transition: "opacity 1s ease-in-out",
-                  zIndex: idx === currentImageIndex ? 1 : 0,
-                }}
-              />
-            ))}
+            {activeCameraUrl ? (
+              <img src={activeCameraUrl} alt="Live YOLO Stream" className="camera-image" style={{ opacity: 1, zIndex: 1, objectFit: "contain", background: "#000" }} />
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 16, color: "#94a3b8" }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ width: 56, height: 56, opacity: 0.5 }}>
+                  <path d="M23 7l-7 5 7 5V7z" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+                <span style={{ fontSize: "0.9rem", fontWeight: 500, textAlign: "center", lineHeight: 1.5 }}>No camera connected<br /><span style={{ fontSize: "0.78rem", fontWeight: 400, opacity: 0.75 }}>Click Connect to begin live monitoring</span></span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -507,6 +547,25 @@ function OverviewSection({ goAnalytics, goReports }: { goAnalytics: () => void; 
           </div>
         </div>
       </div>
+
+      {/* IP Modal */}
+      {connectOpen && (
+        <div className="modal-overlay active" onClick={() => setConnectOpen(false)}>
+          <div className="modal-content" style={{ maxWidth: 440, width: "100%", padding: 36, position: "relative" }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setConnectOpen(false)} aria-label="Close" style={{ background: "none", border: "none", position: "absolute", top: 16, right: 16, cursor: "pointer", color: "var(--text-muted)", padding: 4 }}>
+              <svg className="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            </button>
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>Connect IP Camera</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: 0 }}>Enter the IP camera address to begin real-time analysis streaming.</p>
+            </div>
+            <div className="form-group" style={{ marginBottom: 24 }}>
+              <input type="text" className="form-input" placeholder="e.g. 192.168.0.100:8080" value={inputUrl} onChange={e => setInputUrl(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && inputUrl) { setActiveCameraUrl(`http://127.0.0.1:8000/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }} />
+            </div>
+            <button className="btn btn-primary" style={{ width: "100%", height: 42, fontSize: "0.875rem" }} onClick={() => { if (inputUrl) { setActiveCameraUrl(`http://127.0.0.1:8000/video_feed?url=${encodeURIComponent(inputUrl)}`); setConnectOpen(false); } }}>Start Stream</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -532,8 +591,17 @@ function ActivityItem({ event }: { event: ActivityEvent }) {
   );
 }
 
-function AnalyticsSection() {
-  const total = violationTypes.reduce((s, v) => s + v.count, 0);
+function AnalyticsSection({ data }: { data: AnalyticsData | null }) {
+  const vTypes = data?.violationTypes ?? [];
+  const total = data?.totalViolations ?? 0;
+  const cData = data?.complianceData ?? [88.2, 85.6, 91.3, 87.5, 90.1, 88.7, 87.5];
+  const cDays = data?.complianceDays ?? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dViol = data?.dailyViolations ?? [0, 0, 0, 0, 0, 0, 0];
+  const hData = data?.hourlyData ?? [];
+  const avgC = data?.avgCompliance ?? 0;
+  const todayV = data?.todayViolations ?? 0;
+  const peakH = data?.peakHour ?? "N/A";
+  const quietH = data?.quietestHour ?? "N/A";
   return (
     <>
       <p className="section-subtitle" style={{ marginBottom: 28 }}>
@@ -546,13 +614,13 @@ function AnalyticsSection() {
               <h3 className="chart-title">Compliance Rate</h3>
               <p className="chart-subtitle">Daily average over the past 7 days</p>
             </div>
-            <span className="chart-badge" style={{ background: "var(--success-soft)", color: "var(--success)" }}>87.5% avg</span>
+            <span className="chart-badge" style={{ background: "var(--success-soft)", color: "var(--success)" }}>{avgC}% avg</span>
           </div>
-          <LineChart data={complianceData} labels={complianceDays} color="#1e3a5f" min={78} max={96} unit="%" />
+          <LineChart data={cData} labels={cDays} color="#1e3a5f" min={60} max={99} unit="%" />
           <div className="chart-legend-row">
-            {complianceDays.map((d, i) => (
+            {cDays.map((d, i) => (
               <div key={d} className="chart-legend-item">
-                <span className="chart-legend-dot" style={{ background: complianceData[i] >= 88 ? "var(--success)" : "var(--warning)" }} />
+                <span className="chart-legend-dot" style={{ background: cData[i] >= 88 ? "var(--success)" : "var(--warning)" }} />
                 <span>{d}</span>
               </div>
             ))}
@@ -564,9 +632,9 @@ function AnalyticsSection() {
               <h3 className="chart-title">Daily Violations</h3>
               <p className="chart-subtitle">Number of incidents per day this week</p>
             </div>
-            <span className="chart-badge" style={{ background: "var(--danger-soft)", color: "var(--danger)" }}>24 today</span>
+            <span className="chart-badge" style={{ background: "var(--danger-soft)", color: "var(--danger)" }}>{todayV} today</span>
           </div>
-          <BarChart data={dailyViolations} labels={complianceDays} color="#1e3a5f" />
+          <BarChart data={dViol} labels={cDays} color="#1e3a5f" />
         </div>
       </div>
       <div className="analytics-grid-bottom">
@@ -578,14 +646,14 @@ function AnalyticsSection() {
             </div>
           </div>
           <div className="donut-row">
-            <DonutChart segments={violationTypes.map((v) => ({ label: v.label, value: v.count, color: v.color }))} />
+            <DonutChart segments={vTypes.map((v) => ({ label: v.label, value: v.count, color: v.color }))} />
             <div className="donut-legend">
-              {violationTypes.map((v) => (
+              {vTypes.map((v) => (
                 <div key={v.label} className="donut-legend-item">
                   <span className="donut-legend-dot" style={{ background: v.color }} />
                   <span className="donut-legend-label">{v.label}</span>
                   <span className="donut-legend-count">{v.count}</span>
-                  <span className="donut-legend-pct">{Math.round((v.count / total) * 100)}%</span>
+                  <span className="donut-legend-pct">{total > 0 ? Math.round((v.count / total) * 100) : 0}%</span>
                 </div>
               ))}
             </div>
@@ -597,20 +665,20 @@ function AnalyticsSection() {
               <h3 className="chart-title">Violations by Hour</h3>
               <p className="chart-subtitle">When during the day violations occur most</p>
             </div>
-            <span className="chart-badge" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>Peak: 3 PM</span>
+            <span className="chart-badge" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>Peak: {peakH}</span>
           </div>
-          <HourlyChart data={hourlyData} />
+          <HourlyChart data={hData} />
           <div className="zone-summary-cards">
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color: "var(--danger)" }}>3 PM</span>
+              <span className="zone-summary-val" style={{ color: "var(--danger)" }}>{peakH}</span>
               <span className="zone-summary-label">Peak hour</span>
             </div>
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color: "var(--primary)" }}>47</span>
-              <span className="zone-summary-label">Total today</span>
+              <span className="zone-summary-val" style={{ color: "var(--primary)" }}>{total}</span>
+              <span className="zone-summary-label">Total violations</span>
             </div>
             <div className="zone-summary-item">
-              <span className="zone-summary-val" style={{ color: "var(--success)" }}>8 AM</span>
+              <span className="zone-summary-val" style={{ color: "var(--success)" }}>{quietH}</span>
               <span className="zone-summary-label">Quietest hour</span>
             </div>
           </div>
@@ -722,27 +790,41 @@ function DonutChart({ segments }: { segments: { label: string; value: number; co
   );
 }
 
-function ViolationsSection() {
+function ViolationsSection({ violations }: { violations: Violation[] }) {
   const [search, setSearch] = useState("");
   const [ppe, setPpe] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [active, setActive] = useState<Violation | null>(null);
 
-  const filtered = dummyViolations.filter((v) => {
+  const filtered = violations.filter((v) => {
     if (ppe !== "all" && v.violation !== ppe) return false;
     if (search) {
       const s = search.toLowerCase();
       if (!v.name.toLowerCase().includes(s) && !String(v.trackId).includes(s)) return false;
     }
+    if (dateFrom) {
+      const rowDate = v.timestamp.split(" ")[0];
+      if (rowDate < dateFrom) return false;
+    }
+    if (dateTo) {
+      const rowDate = v.timestamp.split(" ")[0];
+      if (rowDate > dateTo) return false;
+    }
     return true;
   });
+
+  const criticalCount = violations.filter(v => v.status === "Critical").length;
+  const highCount = violations.filter(v => v.status === "High").length;
+  const mediumCount = violations.filter(v => v.status === "Medium").length;
 
   return (
     <>
       <p className="section-subtitle" style={{ marginBottom: 20 }}>All recorded PPE non-compliance events with filtering and export.</p>
       <div className="violations-summary-row">
-        <div className="vsummary-pill vsummary-critical"><span className="vsummary-num">14</span><span>Critical</span></div>
-        <div className="vsummary-pill vsummary-high"><span className="vsummary-num">6</span><span>High</span></div>
-        <div className="vsummary-pill vsummary-medium"><span className="vsummary-num">4</span><span>Medium</span></div>
+        <div className="vsummary-pill vsummary-critical"><span className="vsummary-num">{criticalCount}</span><span>Critical</span></div>
+        <div className="vsummary-pill vsummary-high"><span className="vsummary-num">{highCount}</span><span>High</span></div>
+        <div className="vsummary-pill vsummary-medium"><span className="vsummary-num">{mediumCount}</span><span>Medium</span></div>
         <div style={{ flex: 1 }} />
         <button className="btn btn-outline" onClick={() => alert("Exported violations_audit.csv")}>
           <Ico><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></Ico>
@@ -769,7 +851,10 @@ function ViolationsSection() {
             </div>
             <div className="filter-group">
               <label>Date range</label>
-              <div className="date-range"><input type="date" /><input type="date" /></div>
+              <div className="date-range">
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+              </div>
             </div>
           </div>
         </div>
@@ -803,7 +888,7 @@ function ViolationsSection() {
           </table>
         </div>
         <div className="table-footer">
-          <span>Showing {filtered.length} of {dummyViolations.length} records</span>
+          <span>Showing {filtered.length} of {violations.length} records</span>
           <div className="pagination">
             <button className="btn btn-outline" disabled>Previous</button>
             <button className="btn btn-outline">Next</button>
@@ -814,7 +899,16 @@ function ViolationsSection() {
         <div className="modal-overlay active" onClick={() => setActive(null)}>
           <div className="modal-content" style={{ maxWidth: 720 }} onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setActive(null)} aria-label="Close"><Ico><path d="M18 6L6 18M6 6l12 12" /></Ico></button>
-            <img src={heroImg} alt="" />
+            {active.pic_path ? (
+              <img
+                src={`http://127.0.0.1:8000/violation_image/${active.pic_path}`}
+                alt="Violation snapshot"
+                style={{ width: "100%", borderRadius: 8, objectFit: "contain", maxHeight: 420 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : (
+              <div style={{ height: 260, background: "#f1f5f9", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: "0.9rem" }}>No image captured</div>
+            )}
             <div className="modal-caption">{active.id} · {active.name} · Track #{active.trackId} · {formatViol(active.violation)} · Confidence {active.confidence}</div>
           </div>
         </div>
@@ -824,13 +918,48 @@ function ViolationsSection() {
 }
 
 function ReportsSection() {
-  const [open, setOpen] = useState(false);
+  const today = new Date().toISOString().split("T")[0];
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState(today);
   const [loading, setLoading] = useState(false);
-  const generate = () => { setOpen(true); setLoading(true); setTimeout(() => setLoading(false), 1600); };
+  const [error, setError] = useState("");
+  const [pdfFile, setPdfFile] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (!dateFrom && !dateTo) { setError("Please select at least one date."); return; }
+    setError("");
+    setPdfFile(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/generate_report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date_from: dateFrom, date_to: dateTo }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Report generation failed");
+      }
+      const data = await res.json();
+      setPdfFile(data.filename);
+    } catch (e: any) {
+      setError(e.message ?? "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const download = () => {
+    if (!pdfFile) return;
+    const a = document.createElement("a");
+    a.href = `${API}/download_report/${pdfFile}`;
+    a.download = pdfFile;
+    a.click();
+  };
 
   return (
     <>
-      <p className="section-subtitle" style={{ marginBottom: 28 }}>Generate detailed compliance audit reports for supervisors and safety stakeholders.</p>
+      <p className="section-subtitle" style={{ marginBottom: 28 }}>Generate AI-powered compliance audit reports for supervisors and safety stakeholders.</p>
       <div className="reports-layout">
         <div className="report-left">
           <div className="report-meta-card">
@@ -843,120 +972,86 @@ function ReportsSection() {
               </svg>
               <h2>Compliance Audit Report</h2>
             </div>
-            <p className="rmc-desc">A full analysis of PPE compliance across all monitored zones, including violation patterns, high-risk individuals, and actionable recommendations.</p>
-            <div className="rmc-stats">
-              <div className="rmc-stat"><span className="rmc-stat-val">24</span><span className="rmc-stat-lbl">Violations</span></div>
-              <div className="rmc-stat"><span className="rmc-stat-val">4</span><span className="rmc-stat-lbl">Personnel flagged</span></div>
-              <div className="rmc-stat"><span className="rmc-stat-val">87.5%</span><span className="rmc-stat-lbl">Compliance</span></div>
-              <div className="rmc-stat"><span className="rmc-stat-val">13 days</span><span className="rmc-stat-lbl">Period</span></div>
+            <p className="rmc-desc">Powered by Gemini AI — select a date range and generate a full PDF analysis of PPE compliance, violation patterns, and safety recommendations.</p>
+
+            {/* Date Range Pickers */}
+            <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+              <div className="filter-group" style={{ flex: 1, minWidth: 140 }}>
+                <label style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4, display: "block" }}>From</label>
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid #d1d5db", borderRadius: 6, fontSize: "0.85rem" }} />
+              </div>
+              <div className="filter-group" style={{ flex: 1, minWidth: 140 }}>
+                <label style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4, display: "block" }}>To</label>
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid #d1d5db", borderRadius: 6, fontSize: "0.85rem" }} />
+              </div>
             </div>
-            <div className="rmc-period">
-              <Ico><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></Ico>
-              <span>Period: <strong>May 1 – May 13, 2026</strong></span>
-            </div>
-            <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} onClick={generate}>
-              <Ico><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></Ico>
-              Generate compliance audit
+
+            {error && <p style={{ color: "var(--danger)", fontSize: "0.82rem", marginTop: 10 }}>{error}</p>}
+
+            <button
+              className="btn btn-primary btn-block"
+              style={{ marginTop: 20, opacity: loading ? 0.7 : 1, cursor: loading ? "not-allowed" : "pointer" }}
+              onClick={generate}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2, marginRight: 8, display: "inline-block" }} />
+                  Generating with Gemini AI…
+                </>
+              ) : (
+                <>
+                  <Ico><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></Ico>
+                  Generate compliance audit
+                </>
+              )}
             </button>
+
+            {pdfFile && !loading && (
+              <button
+                className="btn btn-outline btn-block"
+                style={{ marginTop: 12, background: "var(--success-soft)", color: "var(--success)", borderColor: "var(--success)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                onClick={download}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download PDF — {pdfFile}
+              </button>
+            )}
           </div>
         </div>
         <div className="report-right">
           <div className="report-history-card">
-            <h3 className="report-history-title">Previous Reports</h3>
-            {[
-              { date: "May 12, 2026", rate: "89.2%", status: "Good" },
-              { date: "May 11, 2026", rate: "85.7%", status: "Fair" },
-              { date: "May 10, 2026", rate: "91.4%", status: "Excellent" },
-              { date: "May 9, 2026", rate: "84.1%", status: "Fair" },
-            ].map((r) => (
-              <div key={r.date} className="report-history-item">
-                <div className="rhi-left">
-                  <span className="rhi-date">{r.date}</span>
-                  <span className={`rhi-status rhi-${r.status.toLowerCase()}`}>{r.status}</span>
+            <h3 className="report-history-title">How It Works</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 4 }}>
+              {[
+                { step: "1", title: "Select Date Range", desc: "Choose the start and end date for the period you want to analyze." },
+                { step: "2", title: "Gemini AI Analysis", desc: "Gemini reads the violation data and produces an intelligent safety audit." },
+                { step: "3", title: "Download PDF", desc: "A branded PDF report is generated and ready to download instantly." },
+              ].map(s => (
+                <div key={s.step} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                  <span style={{ width: 28, height: 28, background: "var(--primary)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.78rem", fontWeight: 700, flexShrink: 0 }}>{s.step}</span>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--text-primary)" }}>{s.title}</div>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 2 }}>{s.desc}</div>
+                  </div>
                 </div>
-                <div className="rhi-right">
-                  <span className="rhi-rate">{r.rate}</span>
-                  <button className="btn btn-ghost" style={{ padding: "4px 10px", fontSize: "0.75rem" }} onClick={() => alert(`Downloading ${r.date} report`)}>Download</button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div style={{ marginTop: 24, padding: 14, background: "var(--primary-soft)", borderRadius: 8, fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
+              <strong style={{ color: "var(--primary)" }}>⏱ Note:</strong> Report generation may take 15–30 seconds as Gemini analyzes and formats the data.
+            </div>
           </div>
         </div>
       </div>
-      {open && (
-        <div className="modal-overlay active" onClick={() => setOpen(false)}>
-          <div className="modal-content report-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setOpen(false)} aria-label="Close"><Ico><path d="M18 6L6 18M6 6l12 12" /></Ico></button>
-            {loading ? (
-              <div className="loading-state">
-                <div className="spinner-lg" />
-                <p><strong>Analyzing compliance data…</strong></p>
-                <p style={{ marginTop: 6, fontSize: "0.8rem", color: "var(--text-muted)" }}>Processing 24 events across 4 personnel</p>
-              </div>
-            ) : (
-              <ReportPDF />
-            )}
-          </div>
-        </div>
-      )}
     </>
   );
 }
-
-function ReportPDF() {
-  const dateStr = new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" });
-  return (
-    <div className="report-pdf">
-      <div className="report-pdf-header">
-        <div>
-          <h1>PPE Compliance Audit</h1>
-          <p>Generated {dateStr} · NED University Safety Monitoring</p>
-        </div>
-        <div className="report-pdf-badge">Audit Report</div>
-      </div>
-      <div className="report-section">
-        <h2>Executive Summary</h2>
-        <p>This report covers PPE compliance from <strong>May 1–13, 2026</strong>. Automated monitoring recorded <strong>24 violations</strong> across <strong>4 personnel</strong> in two active zones. Site-wide compliance averaged <strong>87.5%</strong>, with helmet non-compliance as the leading category.</p>
-      </div>
-      <div className="report-section">
-        <h2>Violation Breakdown</h2>
-        <table className="report-table">
-          <thead><tr><th>Category</th><th>Count</th><th>Share</th><th>Severity</th></tr></thead>
-          <tbody>
-            <tr><td>No Helmet</td><td>14</td><td>58%</td><td><span className="status status-danger">Critical</span></td></tr>
-            <tr><td>No Goggles</td><td>6</td><td>25%</td><td><span className="status status-warning">High</span></td></tr>
-            <tr><td>No Gloves</td><td>4</td><td>17%</td><td><span className="status status-info">Medium</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div className="report-section">
-        <h2>High-Risk Personnel</h2>
-        <p><strong>Track #1 (Fatima Khan)</strong> accounts for <strong>14 violations (58%)</strong> of all incidents. Pattern shows consistent helmet non-compliance during morning shifts in Zone A. Immediate supervisory review and PPE re-certification are recommended per Safety Protocol Rev 4.0.</p>
-      </div>
-      <div className="report-section">
-        <h2>Recommendations</h2>
-        <ul>
-          <li>Add a PPE equipment checkpoint at the Zone A entrance before every shift.</li>
-          <li>Schedule a helmet safety workshop for the morning team.</li>
-          <li>Enable audio-visual alerts for high-confidence violations (&gt;85%).</li>
-          <li>Send weekly compliance summaries to all site supervisors.</li>
-          <li>Update the Safety Matrix based on this monitoring cycle's findings.</li>
-        </ul>
-      </div>
-      <div className="report-actions">
-        <button className="btn btn-primary" onClick={() => alert("PDF download initiated")}>
-          <Ico><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></Ico>
-          Download PDF
-        </button>
-        <button className="btn btn-outline" onClick={() => alert("Report sent to stakeholders")}>
-          <Ico><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></Ico>
-          Email to stakeholders
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function SettingsSection() {
   const [conf, setConf] = useState(45);
   const [iou, setIou] = useState(50);
@@ -990,6 +1085,85 @@ function SettingsSection() {
           <Ico><path d="M20 6L9 17l-5-5" /></Ico>
           Save configuration
         </button>
+      </div>
+    </>
+  );
+}
+
+function AuthorizeSection() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<{ text: string; type: "error" | "success" } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setLoading(true);
+    setMsg(null);
+    try {
+      const res = await fetch(`${API}/authorize_user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to authorize user");
+
+      setMsg({ text: "Email has been successfully sent.", type: "success" });
+      setEmail("");
+      setPassword("");
+    } catch (err: any) {
+      setMsg({ text: err.message, type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <p className="section-subtitle" style={{ marginBottom: 28 }}>Securely add and authorize personnel to access the PPE Monitoring dashboard.</p>
+
+      <div className="card settings-card" style={{ maxWidth: 500 }}>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: 16 }}>Authorize New User</h2>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="form-group">
+            <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: 6, display: "block" }}>Staff Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="worker@safeguard.com"
+              required
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--border)", borderRadius: 6, fontSize: "0.9rem" }}
+            />
+          </div>
+          <div className="form-group">
+            <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: 6, display: "block" }}>Assign Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Create a strong password"
+              required
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--border)", borderRadius: 6, fontSize: "0.9rem" }}
+            />
+          </div>
+
+          {msg && (
+            <div style={{
+              padding: "10px 14px", borderRadius: 6, fontSize: "0.85rem", fontWeight: 500,
+              background: msg.type === "success" ? "var(--success-soft)" : "var(--danger-soft)",
+              color: msg.type === "success" ? "var(--success)" : "var(--danger)"
+            }}>
+              {msg.text}
+            </div>
+          )}
+
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: 8 }}>
+            {loading ? "Authorizing..." : "Authorize Personnel"}
+          </button>
+        </form>
       </div>
     </>
   );
