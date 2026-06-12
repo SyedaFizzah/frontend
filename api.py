@@ -389,7 +389,6 @@ def process_video_feed(url: str):
     cap.release()
 
 @app.get("/video_feed")
-@app.get("/video_feed")
 async def video_feed(url: str = Query(...)):
     if not url.startswith("http"): url = "http://" + url
     if not url.endswith("/video"): url = url.rstrip("/") + "/video"
